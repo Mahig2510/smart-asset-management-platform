@@ -9,15 +9,24 @@ import User from "@/models/User";
 import Asset from "@/models/Asset";
 import RequestModel from "@/models/Request";
 
+import mongoose from "mongoose";
+
 export async function GET() {
   try {
     await connectDB();
+
+if (!mongoose.models.User) {
+  throw new Error("User model not registered");
+}
 
    const allocations =
   await Allocation.find()
     .populate("asset")
     .populate("user")
     .sort({ createdAt: -1 });
+
+    console.log("ALLOC MODELS:", Object.keys(mongoose.models));
+console.log("USER MODEL:", mongoose.models.User);
 
     return NextResponse.json(
       {

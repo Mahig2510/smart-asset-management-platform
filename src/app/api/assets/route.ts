@@ -4,10 +4,33 @@ import { connectDB } from "@/lib/db/connect";
 import Asset from "@/models/Asset";
 import Category from "@/models/Category";
 
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 export async function POST(req: Request) {
   try {
     await connectDB();
 
+    const currentUser =
+  await getCurrentUser();
+
+if (!currentUser) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Unauthorized",
+    },
+    { status: 401 }
+  );
+}
+
+if (currentUser.role !== "ADMIN") {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Access denied",
+    },
+    { status: 403 }
+  );
+}
     const body = await req.json();
 
     const {

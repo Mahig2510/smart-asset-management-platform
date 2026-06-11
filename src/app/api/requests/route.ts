@@ -8,12 +8,18 @@ import Asset from "@/models/Asset";
 
 import User from "@/models/User";
 
+
 import Category from "@/models/Category";
 
 
 export async function GET() {
   try {
     await connectDB();
+
+  if (!mongoose.models.User) {
+  throw new Error("User model not registered");
+}
+
     const requests = await RequestModel.find()
       .populate("asset")
       .populate("user")
