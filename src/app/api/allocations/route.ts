@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 import { connectDB } from "@/lib/db/connect";
 
@@ -11,25 +12,48 @@ console.log("User import:", User);
 import Asset from "@/models/Asset";
 import RequestModel from "@/models/Request";
 
-import mongoose from "mongoose";
 
 export async function GET() {
   try {
     await connectDB();
 
+    const currentUser =
+      await getCurrentUser();
 
-if (!mongoose.models.User) {
-  throw new Error("User model not registered");
-}
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 401 }
+      );
+    }
 
-   const allocations =
-  await Allocation.find()
-    .populate("asset")
-    .populate("user")
-    .sort({ createdAt: -1 });
+    let allocations;
 
-    console.log("ALLOC MODELS:", Object.keys(mongoose.models));
-console.log("USER MODEL:", mongoose.models.User);
+    if (
+      currentUser.role === "ADMIN"
+    ) {
+      allocations =
+        await Allocation.find()
+          .populate("asset")
+          .populate("user")
+          .sort({
+            createdAt: -1,
+          });
+    } else {
+      allocations =
+        await Allocation.find({
+          user:
+            currentUser.userId,
+        })
+          .populate("asset")
+          .populate("user")
+          .sort({
+            createdAt: -1,
+          });
+    }
 
     return NextResponse.json(
       {
