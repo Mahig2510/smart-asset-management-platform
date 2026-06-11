@@ -9,12 +9,16 @@ export default function AllocationsPage() {
   const [allocations, setAllocations] =
     useState<any[]>([]);
 
+  const [currentUser, setCurrentUser] =
+  useState<any>(null);  
+
   const [loading, setLoading] =
     useState(true);
 
   useEffect(() => {
-    fetchAllocations();
-  }, []);
+  fetchAllocations();
+  fetchCurrentUser();
+}, []);
 
   const fetchAllocations = async () => {
     try {
@@ -32,6 +36,35 @@ export default function AllocationsPage() {
       setLoading(false);
     }
   };
+
+  const fetchCurrentUser = async () => {
+  try {
+    const response =
+      await axios.get("/api/me");
+
+    setCurrentUser(
+      response.data.user
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+  const returnAsset = async (
+  allocationId: string
+) => {
+  try {
+    await axios.patch(
+      `/api/allocations/${allocationId}/return`
+    );
+
+    fetchAllocations();
+  } catch (error) {
+    console.error(error);
+    alert("Failed to return asset");
+  }
+};
 
   return (
     <DashboardLayout>
@@ -68,6 +101,10 @@ export default function AllocationsPage() {
 
                 <th className="p-3 text-left">
                   Status
+                </th>
+
+                <th className="p-3 text-left">
+                 Actions
                 </th>
               </tr>
             </thead>
@@ -118,6 +155,29 @@ export default function AllocationsPage() {
                         allocation.status
                       }
                     </td>
+
+                    <td className="p-3">
+  {allocation.status ===
+    "ACTIVE" && (
+    <button
+      onClick={() =>
+        returnAsset(
+          allocation._id
+        )
+      }
+      className="rounded bg-green-600 px-3 py-1 text-white text-sm"
+    >
+      Return
+    </button>
+  )}
+
+  {allocation.status ===
+    "RETURNED" && (
+    <span className="text-gray-500">
+      Returned
+    </span>
+  )}
+</td> 
                   </tr>
                 )
               )}
