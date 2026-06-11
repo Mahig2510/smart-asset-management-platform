@@ -8,6 +8,7 @@ import Asset from "@/models/Asset";
 
 import User from "@/models/User";
 
+console.log("User import:", User);
 
 import Category from "@/models/Category";
 
@@ -16,6 +17,10 @@ export async function GET() {
   try {
     await connectDB();
 
+console.log(
+  "MODELS AFTER USER IMPORT:",
+  Object.keys(mongoose.models)
+);
   if (!mongoose.models.User) {
   throw new Error("User model not registered");
 }

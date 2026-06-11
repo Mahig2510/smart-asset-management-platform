@@ -8,14 +8,17 @@ import { Asset } from "@/types/asset";
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [currentUser, setCurrentUser] =
+  useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] =
   useState("ALL");
 
   useEffect(() => {
-    fetchAssets();
-  }, []);
+  fetchAssets();
+  fetchCurrentUser();
+}, []);
 
   const fetchAssets = async () => {
     try {
@@ -28,6 +31,18 @@ export default function AssetsPage() {
       setLoading(false);
     }
   };
+  const fetchCurrentUser = async () => {
+  try {
+    const response =
+      await axios.get("/api/me");
+
+    setCurrentUser(
+      response.data.user
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const filteredAssets = assets.filter(
   (asset) => {
@@ -58,12 +73,14 @@ export default function AssetsPage() {
     Assets
   </h1>
 
+  {currentUser?.role === "ADMIN" && (
   <Link
     href="/dashboard/assets/create"
     className="rounded bg-black px-4 py-2 text-white"
   >
     + Create Asset
   </Link>
+)}
 </div>
 
 <div className="mb-6 flex gap-4">
@@ -142,9 +159,12 @@ export default function AssetsPage() {
                 <th className="p-3 text-left">
                   Location
                 </th>
-                <th className="p-3 text-left">
+
+                {currentUser?.role === "ADMIN" && (
+               <th className="p-3 text-left">
                 Actions
                 </th>
+              )}
               </tr>
             </thead>
 
@@ -181,7 +201,7 @@ export default function AssetsPage() {
                   <td className="p-3">
                     {asset.location}
                   </td>
-                  <td className="p-3">
+                 <td className="p-3">
   <div className="flex gap-2">
     <Link
       href={`/dashboard/assets/${asset._id}`}
@@ -190,36 +210,43 @@ export default function AssetsPage() {
       View
     </Link>
 
-    <Link
-      href={`/dashboard/assets/${asset._id}/edit`}
-      className="rounded bg-yellow-500 px-2 py-1 text-white text-sm"
-    >
-      Edit
-    </Link>
+    {currentUser?.role === "ADMIN" && (
+      <>
+        <Link
+          href={`/dashboard/assets/${asset._id}/edit`}
+          className="rounded bg-yellow-500 px-2 py-1 text-white text-sm"
+        >
+          Edit
+        </Link>
 
-    <button
-      onClick={async () => {
-        const confirmed = window.confirm(
-          "Delete this asset?"
-        );
+        <button
+          onClick={async () => {
+            const confirmed =
+              window.confirm(
+                "Delete this asset?"
+              );
 
-        if (!confirmed) return;
+            if (!confirmed) return;
 
-        try {
-          await axios.delete(
-            `/api/assets/${asset._id}`
-          );
+            try {
+              await axios.delete(
+                `/api/assets/${asset._id}`
+              );
 
-          fetchAssets();
-        } catch (error) {
-          console.error(error);
-          alert("Failed to delete asset");
-        }
-      }}
-      className="rounded bg-red-500 px-2 py-1 text-white text-sm"
-    >
-      Delete
-    </button>
+              fetchAssets();
+            } catch (error) {
+              console.error(error);
+              alert(
+                "Failed to delete asset"
+              );
+            }
+          }}
+          className="rounded bg-red-500 px-2 py-1 text-white text-sm"
+        >
+          Delete
+        </button>
+      </>
+    )}
   </div>
 </td>
                 </tr>

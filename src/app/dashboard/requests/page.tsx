@@ -96,9 +96,11 @@ export default function RequestsPage() {
                   Status
                 </th>
 
-                <th className="p-3 text-left">
-                  Actions
-                </th>
+                {currentUser?.role === "ADMIN" && (
+                 <th className="p-3 text-left">
+                 Actions
+                 </th>
+               )}
               </tr>
             </thead>
 
@@ -135,36 +137,35 @@ export default function RequestsPage() {
                       }
                     </td>
 
-                    <td className="p-3">
-                      {currentUser?.role ===
-                        "ADMIN" && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() =>
-                              updateRequest(
-                                request._id,
-                                "APPROVED"
-                              )
-                            }
-                            className="rounded bg-green-600 px-2 py-1 text-white"
-                          >
-                            Approve
-                          </button>
+                    {currentUser?.role === "ADMIN" && (
+  <td className="p-3">
+    <div className="flex gap-2">
+      <button
+        onClick={() =>
+          updateRequest(
+            request._id,
+            "APPROVED"
+          )
+        }
+        className="rounded bg-green-600 px-2 py-1 text-white"
+      >
+        Approve
+      </button>
 
-                          <button
-                            onClick={() =>
-                              updateRequest(
-                                request._id,
-                                "REJECTED"
-                              )
-                            }
-                            className="rounded bg-red-600 px-2 py-1 text-white"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      )}
-                    </td>
+      <button
+        onClick={() =>
+          updateRequest(
+            request._id,
+            "REJECTED"
+          )
+        }
+        className="rounded bg-red-600 px-2 py-1 text-white"
+      >
+        Reject
+      </button>
+    </div>
+  </td>
+)}
                   </tr>
                 )
               )}

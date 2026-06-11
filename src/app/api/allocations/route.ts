@@ -6,6 +6,8 @@ import Allocation from "@/models/Allocation";
 
 import User from "@/models/User";
 
+console.log("User import:", User);
+
 import Asset from "@/models/Asset";
 import RequestModel from "@/models/Request";
 
@@ -14,6 +16,7 @@ import mongoose from "mongoose";
 export async function GET() {
   try {
     await connectDB();
+
 
 if (!mongoose.models.User) {
   throw new Error("User model not registered");
