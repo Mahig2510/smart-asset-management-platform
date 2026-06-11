@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
 import { connectDB } from "@/lib/db/connect";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 import RequestModel from "@/models/Request";
 import Asset from "@/models/Asset";
@@ -17,18 +18,43 @@ export async function GET() {
   try {
     await connectDB();
 
-console.log(
-  "MODELS AFTER USER IMPORT:",
-  Object.keys(mongoose.models)
-);
-  if (!mongoose.models.User) {
-  throw new Error("User model not registered");
-}
+    const currentUser =
+      await getCurrentUser();
 
-    const requests = await RequestModel.find()
-      .populate("asset")
-      .populate("user")
-      .sort({ createdAt: -1 });
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 401 }
+      );
+    }
+
+    let requests;
+
+    if (
+      currentUser.role === "ADMIN"
+    ) {
+      requests =
+        await RequestModel.find()
+          .populate("asset")
+          .populate("user")
+          .sort({
+            createdAt: -1,
+          });
+    } else {
+      requests =
+        await RequestModel.find({
+          user:
+            currentUser.userId,
+        })
+          .populate("asset")
+          .populate("user")
+          .sort({
+            createdAt: -1,
+          });
+    }
 
     return NextResponse.json(
       {
@@ -38,14 +64,17 @@ console.log(
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("REQUEST ERROR",error);
+    console.error(
+      "REQUEST ERROR",
+      error
+    );
 
     return NextResponse.json(
       {
         success: false,
-        message: 
-        error?.message || 
-        "Something went wrong",
+        message:
+          error?.message ||
+          "Something went wrong",
       },
       { status: 500 }
     );
