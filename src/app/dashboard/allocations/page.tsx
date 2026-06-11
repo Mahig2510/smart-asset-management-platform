@@ -69,7 +69,7 @@ export default function AllocationsPage() {
   return (
     <DashboardLayout>
       <h1 className="text-3xl font-bold mb-6">
-        Active Allocations
+        Allocations
       </h1>
 
       {loading ? (
@@ -101,6 +101,10 @@ export default function AllocationsPage() {
 
                 <th className="p-3 text-left">
                   Status
+                </th>
+
+                <th className="p-3 text-left">
+                Return Date
                 </th>
 
                 <th className="p-3 text-left">
@@ -151,9 +155,24 @@ export default function AllocationsPage() {
                     </td>
 
                     <td className="p-3">
-                      {
-                        allocation.status
-                      }
+  <span
+    className={`rounded px-2 py-1 text-white text-sm ${
+      allocation.status ===
+      "ACTIVE"
+        ? "bg-green-600"
+        : "bg-gray-600"
+    }`}
+  >
+    {allocation.status}
+  </span>
+</td>
+
+                    <td className="p-3">
+                      {allocation.returnDate
+                        ? new Date(
+                        allocation.returnDate
+                        ).toLocaleDateString()
+                      : "-"}
                     </td>
 
                     <td className="p-3">

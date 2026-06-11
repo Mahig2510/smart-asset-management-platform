@@ -8,8 +8,10 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 interface DashboardStats {
   totalAssets: number;
   availableAssets: number;
-  allocatedAssets: number;
   totalCategories: number;
+  activeRequests: number;
+  activeAllocations: number;
+  totalUsers: number;
 }
 
 export default function DashboardPage() {
@@ -47,47 +49,69 @@ export default function DashboardPage() {
       {!stats ? (
         <p>Loading...</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm text-gray-500">
-              Total Assets
-            </h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
-            <p className="mt-2 text-3xl font-bold">
-              {stats.totalAssets}
-            </p>
-          </div>
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Total Assets
+    </h2>
 
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm text-gray-500">
-              Available Assets
-            </h2>
+    <p className="mt-2 text-3xl font-bold">
+      {stats.totalAssets}
+    </p>
+  </div>
 
-            <p className="mt-2 text-3xl font-bold">
-              {stats.availableAssets}
-            </p>
-          </div>
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Available Assets
+    </h2>
 
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm text-gray-500">
-              Allocated Assets
-            </h2>
+    <p className="mt-2 text-3xl font-bold text-green-600">
+      {stats.availableAssets}
+    </p>
+  </div>
 
-            <p className="mt-2 text-3xl font-bold">
-              {stats.allocatedAssets}
-            </p>
-          </div>
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Pending Requests
+    </h2>
 
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm text-gray-500">
-              Categories
-            </h2>
+    <p className="mt-2 text-3xl font-bold text-yellow-600">
+      {stats.activeRequests}
+    </p>
+  </div>
 
-            <p className="mt-2 text-3xl font-bold">
-              {stats.totalCategories}
-            </p>
-          </div>
-        </div>
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Active Allocations
+    </h2>
+
+    <p className="mt-2 text-3xl font-bold text-blue-600">
+      {stats.activeAllocations}
+    </p>
+  </div>
+
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Total Users
+    </h2>
+
+    <p className="mt-2 text-3xl font-bold text-purple-600">
+      {stats.totalUsers}
+    </p>
+  </div>
+
+  <div className="rounded-lg border bg-white p-6 shadow-sm">
+    <h2 className="text-sm text-gray-500">
+      Categories
+    </h2>
+
+    <p className="mt-2 text-3xl font-bold">
+      {stats.totalCategories}
+    </p>
+  </div>
+
+</div>
       )}
     </DashboardLayout>
   );
