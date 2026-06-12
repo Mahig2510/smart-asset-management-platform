@@ -1,5 +1,5 @@
 "use client";
-
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
@@ -65,7 +65,7 @@ export default function AssetDetailsPage() {
         }
       );
 
-      alert(
+      toast.success(
         "Request submitted successfully"
       );
 
@@ -78,7 +78,7 @@ export default function AssetDetailsPage() {
     } catch (error) {
       console.error(error);
 
-      alert(
+      toast.error(
         "Failed to submit request"
       );
     }

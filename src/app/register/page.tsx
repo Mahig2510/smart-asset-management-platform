@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
-
+import { toast } from "sonner";
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -41,15 +41,15 @@ export default function RegisterPage() {
           formData
         );
 
-      alert(
+      toast.success(
         response.data.message
       );
 
       router.push("/login");
-    } catch (error: any) {
+      } catch (error: any) {
       console.error(error);
 
-      alert(
+      toast.error(
         error?.response?.data
           ?.message ||
           "Registration failed"
@@ -69,10 +69,12 @@ export default function RegisterPage() {
         <form
           onSubmit={handleSubmit}
           className="space-y-4"
+          autoComplete="off"
         >
           <input
             type="text"
             name="name"
+            autoComplete="off"
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
@@ -83,6 +85,7 @@ export default function RegisterPage() {
           <input
             type="email"
             name="email"
+            autoComplete="off"
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
@@ -93,6 +96,7 @@ export default function RegisterPage() {
           <input
             type="password"
             name="password"
+            autoComplete="new-password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}

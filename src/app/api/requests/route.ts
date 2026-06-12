@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
+import Notification from "@/models/Notification";
+
 import { connectDB } from "@/lib/db/connect";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
@@ -13,6 +15,7 @@ console.log("User import:", User);
 
 import Category from "@/models/Category";
 
+import AuditLog from "@/models/AuditLog";
 
 export async function GET() {
   try {
@@ -132,6 +135,38 @@ export async function POST(
         startDate,
         endDate,
         purpose,
+      });
+
+      await Notification.create({
+        user,
+
+        title: "Request Submitted",
+
+         message: `Your request for ${assetDoc.name} has been submitted successfully.`,
+      });
+
+      const admins = await User.find({
+  role: "ADMIN",
+});
+
+for (const admin of admins) {
+  await Notification.create({
+    user: admin._id,
+
+    title: "New Request",
+
+    message:
+      `${assetDoc.name} requested by user.`,
+  });
+}
+
+      await AuditLog.create({
+       user,
+
+       action: "REQUEST_SUBMITTED",
+
+       description:
+       `Requested asset ${assetDoc.name}`,
       });
 
     return NextResponse.json(

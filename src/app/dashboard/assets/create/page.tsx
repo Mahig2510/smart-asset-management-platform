@@ -6,6 +6,7 @@ import axios from "axios";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Category } from "@/types/category";
+import { toast } from "sonner";
 
 export default function CreateAssetPage() {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function CreateAssetPage() {
       router.push("/dashboard/assets");
     } catch (error) {
       console.error(error);
-      alert("Failed to create asset");
+      toast.error("Failed to create asset");
     } finally {
       setLoading(false);
     }

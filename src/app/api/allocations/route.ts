@@ -4,16 +4,13 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { connectDB } from "@/lib/db/connect";
 
 import Allocation from "@/models/Allocation";
-
 import User from "@/models/User";
+import Asset from "@/models/Asset";
+import RequestModel from "@/models/Request";
+import Notification from "@/models/Notification";
 
 console.log("User import:", User);
-
-import Asset from "@/models/Asset";
-
-console.log("User import:", RequestModel);
-import RequestModel from "@/models/Request";
-
+console.log("Request import:", RequestModel);
 
 export async function GET() {
   try {
@@ -55,6 +52,52 @@ export async function GET() {
           .sort({
             createdAt: -1,
           });
+    }
+
+    // Auto mark overdue allocations
+    for (const allocation of allocations) {
+      if (
+        allocation.status ===
+          "ACTIVE" &&
+        new Date(
+          allocation.dueDate
+        ) < new Date()
+      ) {
+        allocation.status =
+          "OVERDUE";
+
+        await allocation.save();
+
+        const assetName =
+          (allocation.asset as any)?.name ||
+         "Asset";
+
+        const message =
+         `Your asset ${assetName} is overdue. Please return it immediately.`;
+
+        const existingNotification =
+          await Notification.findOne({
+            user:
+              (allocation.user as any)?._id,
+            title:
+              "Asset Overdue",
+            message,
+          });
+
+        if (
+          !existingNotification
+        ) {
+          await Notification.create({
+            user:
+              (allocation.user as any)?._id,
+
+            title:
+              "Asset Overdue",
+
+            message,
+          });
+        }
+      }
     }
 
     return NextResponse.json(

@@ -7,6 +7,9 @@ import Allocation from "@/models/Allocation";
 import Asset from "@/models/Asset";
 import RequestModel from "@/models/Request";
 
+import Notification from "@/models/Notification";
+import AuditLog from "@/models/AuditLog";
+
 interface RouteParams {
   params: Promise<{
     id: string;
@@ -49,20 +52,19 @@ export async function PATCH(
       );
     }
 
-    if (
-      currentUser.role !== "ADMIN" &&
-      allocation.user.toString() !==
-        currentUser.userId
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Access denied",
-        },
-        { status: 403 }
-      );
-    }
+  if (
+  allocation.user.toString() !==
+  currentUser.userId
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      message:
+        "You can only return your own assets",
+    },
+    { status: 403 }
+  );
+}
 
     if (
       allocation.status ===
@@ -107,6 +109,24 @@ export async function PATCH(
       new Date();
 
     await allocation.save();
+
+    await Notification.create({
+     user: allocation.user,
+
+     title: "Asset Returned",
+
+     message:
+      "Asset return processed successfully.",
+    });
+
+    await AuditLog.create({
+      user: allocation.user,
+
+      action: "ASSET_RETURNED",
+
+      description:
+       `Returned asset successfully`,
+    });
 
     await RequestModel.findByIdAndUpdate(
       allocation.request,

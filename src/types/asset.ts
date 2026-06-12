@@ -27,4 +27,6 @@ export interface Asset {
 
   createdAt: string;
   updatedAt: string;
+
+  qrCode?: string;
 }

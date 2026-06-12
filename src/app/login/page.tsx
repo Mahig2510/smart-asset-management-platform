@@ -75,6 +75,7 @@ export default function LoginPage() {
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-5"
+            autoComplete="off"
           >
             <div>
               <Label htmlFor="email">
@@ -84,6 +85,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="new-email"
                 placeholder="Enter your email"
                 {...register("email")}
               />
@@ -97,6 +99,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 placeholder="Enter your password"
                 {...register("password")}
               />

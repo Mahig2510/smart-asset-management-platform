@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-
+import { toast } from "sonner";
 export default function EditAssetPage() {
   const params = useParams();
   const router = useRouter();
@@ -95,7 +95,7 @@ export default function EditAssetPage() {
       router.push("/dashboard/assets");
     } catch (error) {
       console.error(error);
-      alert("Failed to update asset");
+      toast.error("Failed to update asset");
     } finally {
       setSaving(false);
     }

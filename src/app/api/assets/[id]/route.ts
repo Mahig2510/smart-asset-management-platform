@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/connect";
 import Asset from "@/models/Asset";
 import Category from "@/models/Category";
+import AuditLog from "@/models/AuditLog";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 interface RouteParams {
   params: Promise<{
@@ -89,6 +91,17 @@ export async function PATCH(
         }
       );
 
+      const currentUser =
+        await getCurrentUser();
+        await AuditLog.create({
+          user: currentUser?.userId,
+
+          action: "ASSET_UPDATED",
+
+          description:
+             `Updated asset ${updatedAsset?.name}`,
+      });
+
     if (!updatedAsset) {
       return NextResponse.json(
         {
@@ -131,6 +144,18 @@ export async function DELETE(
 
     const deletedAsset =
       await Asset.findByIdAndDelete(id);
+
+      const currentUser =
+  await getCurrentUser();
+
+await AuditLog.create({
+  user: currentUser?.userId,
+
+  action: "ASSET_DELETED",
+
+  description:
+    `Deleted asset ${deletedAsset?.name}`,
+});
 
     if (!deletedAsset) {
       return NextResponse.json(

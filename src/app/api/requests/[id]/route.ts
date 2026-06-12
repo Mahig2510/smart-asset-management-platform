@@ -5,6 +5,8 @@ import { connectDB } from "@/lib/db/connect";
 import Request from "@/models/Request";
 import Asset from "@/models/Asset";
 import Allocation from "@/models/Allocation";
+import Notification from "@/models/Notification";
+import AuditLog from "@/models/AuditLog";
 
 interface RouteParams {
   params: Promise<{
@@ -105,19 +107,20 @@ if (currentUser.role !== "ADMIN") {
     if (
   body.status === "APPROVED"
 ) {
+
   if (
-    requestDoc.status ===
-    "APPROVED"
-  ) {
-    return NextResponse.json(
-      {
-        success: false,
-        message:
-          "Request already approved",
-      },
-      { status: 400 }
-    );
-  }
+  requestDoc.status !==
+  "PENDING"
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      message:
+        "Only pending requests can be approved",
+    },
+    { status: 400 }
+  );
+}
 
   const asset =
     await Asset.findById(
@@ -164,34 +167,89 @@ if (currentUser.role !== "ADMIN") {
   await requestDoc.save();
 
   await Allocation.create({
-    user: requestDoc.user,
+  user: requestDoc.user,
 
-    asset: requestDoc.asset,
+  asset: requestDoc.asset,
 
-    request: requestDoc._id,
+  request: requestDoc._id,
 
-    quantity:
-      requestDoc.quantity,
+  quantity:
+    requestDoc.quantity,
 
-    issueDate: new Date(),
+  issueDate: new Date(),
 
-    dueDate:
-      requestDoc.endDate,
+  dueDate:
+    requestDoc.endDate,
 
-    status: "ACTIVE",
-  });
+  status: "ACTIVE",
+});
+
+await Notification.create({
+  user: requestDoc.user,
+
+  title: "Request Approved",
+
+  message:
+    "Your asset request has been approved.",
+}); 
+
+await AuditLog.create({
+  user: requestDoc.user,
+
+  action: "REQUEST_APPROVED",
+
+  description:
+    `Approved request for asset ${asset.name}`,
+});
+
 }
 
+
     if (
-      body.status === "REJECTED"
-    ) {
-      requestDoc.status =
-        "REJECTED";
+  body.status === "REJECTED"
+) {
+
+  if (
+    requestDoc.status ===
+    "APPROVED"
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          "Approved requests cannot be rejected",
+      },
+      { status: 400 }
+    );
+  }
+
+  requestDoc.status =
+    "REJECTED";
 
       requestDoc.rejectionReason =
         body.rejectionReason || "";
 
       await requestDoc.save();
+      await Notification.create({
+  user: requestDoc.user,
+
+  title: "Request Rejected",
+
+  message:
+    body.rejectionReason ||
+    "Your request was rejected.",
+});
+
+await AuditLog.create({
+  user: requestDoc.user,
+
+  action: "REQUEST_REJECTED",
+
+  description:
+    body.rejectionReason ||
+    "Request rejected",
+});
+
     }
 
     return NextResponse.json(
